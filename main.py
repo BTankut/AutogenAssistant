@@ -67,9 +67,14 @@ with st.sidebar:
         # Agent creation
         st.subheader("Create New Agent")
         agent_name = st.text_input("Agent Name")
+
+        # Show roles with descriptions
+        roles = [role for role in DEFAULT_AGENT_ROLES.keys() if role != "coordinator"]
+        
         agent_role = st.selectbox(
             "Role", 
-            [role for role in DEFAULT_AGENT_ROLES.keys() if role != "coordinator"]
+            roles,
+            format_func=lambda x: f"{x.title()}: {DEFAULT_AGENT_ROLES[x]['description']}"
         )
 
         if st.session_state.available_models:

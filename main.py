@@ -159,10 +159,12 @@ else:
                     )
                 with col2:
                     if st.button("🔄 Reset Chat", help="Start a new chat while keeping agent configurations"):
-                        # Clear current chat state but keep history and configurations
-                        for key in ['current_progress', 'user_input', 'agent_responses']:
-                            if key in st.session_state:
-                                del st.session_state[key]
+                        # Clear conversation history but keep agent configurations
+                        st.session_state.conversations = []
+
+                        # Clear any active user inputs
+                        if 'user_input' in st.session_state:
+                            del st.session_state.user_input
 
                         # Force the UI to refresh
                         st.rerun()

@@ -400,3 +400,5 @@ else:
 
         # Display charts
         create_metrics_charts(st.session_state.metrics)
+
+#Note: The edited code's app.run() is not directly applicable as the original uses streamlit directly.  Further modification might be needed depending on the underlying structure of the application.

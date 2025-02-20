@@ -32,7 +32,9 @@ with st.sidebar:
     st.title("🤖 Agent Configuration")
 
     # Use API key from environment
-    api_key = os.getenv('OPENROUTER_API_KEY')
+    from dotenv import load_dotenv
+    load_dotenv()
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if api_key:
         st.session_state.api_key = api_key
         api = OpenRouterAPI(api_key)

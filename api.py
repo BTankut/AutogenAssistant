@@ -8,7 +8,11 @@ class OpenRouterAPI:
         self.base_url = "https://openrouter.ai/api/v1"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "HTTP_REFERER": "https://github.com/BTankut/AutogenAssistant",
+            "X-Title": "AutogenAssistant",
+            "User-Agent": "AutogenAssistant/1.0.0",
+            "Accept": "application/json"
         }
 
     def generate_completion(self, 

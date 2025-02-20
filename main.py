@@ -113,6 +113,11 @@ else:
                     horizontal=True
                 )
 
+                # Display available agents
+                st.subheader("Available Agents")
+                for agent_name, agent in agents.items():
+                    st.write(f"• **{agent_name}** ({agent.role})")
+
                 # Message input
                 user_input = st.text_area("Your message")
 

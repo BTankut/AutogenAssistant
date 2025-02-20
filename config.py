@@ -2,6 +2,17 @@ import streamlit as st
 
 # Default agent roles
 DEFAULT_AGENT_ROLES = {
+    "coordinator": {
+        "name": "Coordinator",
+        "description": "Coordinates and manages other agents",
+        "system_message": """You are a coordinator agent responsible for:
+1. Analyzing user messages
+2. Determining which specialized agents should respond
+3. Combining and summarizing agent responses
+4. Ensuring coherent multi-agent conversations
+
+Always explain your reasoning when delegating tasks to agents."""
+    },
     "user_proxy": {
         "name": "Human Assistant",
         "description": "Represents the user's interests and manages task delegation",
@@ -35,3 +46,5 @@ def init_session_state():
         }
     if 'available_models' not in st.session_state:
         st.session_state.available_models = {}
+    if 'coordinator' not in st.session_state:
+        st.session_state.coordinator = None

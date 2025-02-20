@@ -10,8 +10,33 @@ import os
 st.set_page_config(
     page_title="Multi-Agent Dashboard",
     page_icon="🤖",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# Theme configuration
+st.markdown("""
+    <style>
+    .stApp {
+        background: var(--background-color);
+        color: var(--text-color);
+    }
+    :root {
+        --background-color: #0e1117;
+        --text-color: #fafafa;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Error handling wrapper
+def handle_error(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
+            return None
+    return wrapper
 
 # Initialize session state
 init_session_state()

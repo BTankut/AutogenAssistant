@@ -88,9 +88,20 @@ class AgentGroup:
         if agent_name in self.agents:
             del self.agents[agent_name]
 
+    def __init__(self, api: OpenRouterAPI):
+        self.api = api
+        self.agents = {}
+        self.coordinator = None
+        self.response_cache = {}
+
     def get_response(self, agent_name: str) -> Dict[str, Any]:
         if agent_name not in self.agents:
             return {"success": False, "error": "Agent not found"}
+            
+        # Check cache first
+        cache_key = f"{agent_name}_{str(self.agents[agent_name].messages)}"
+        if cache_key in self.response_cache:
+            return self.response_cache[cache_key]
 
         agent = self.agents[agent_name]
         agent.start_processing()

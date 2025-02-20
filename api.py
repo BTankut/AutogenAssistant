@@ -33,6 +33,19 @@ class OpenRouterAPI:
             completion_time = time.time() - start_time
             
             result = response.json()
+            if "choices" not in result or not result["choices"]:
+                return {
+                    "success": False,
+                    "error": "Invalid API response: missing choices",
+                    "raw_response": result
+                }
+            if "usage" not in result:
+                return {
+                    "success": True,
+                    "response": result["choices"][0]["message"]["content"],
+                    "tokens": 0,
+                    "time": completion_time
+                }
             return {
                 "success": True,
                 "response": result["choices"][0]["message"]["content"],

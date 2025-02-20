@@ -299,11 +299,10 @@ else:
                                                 progress_placeholder.write("✨ Finalizing...")
                                                 progress_bar.progress(95)
 
-                                                # Show combined result first
+                                                # Show coordinator's final evaluation first
                                                 st.success("✅ Process completed!")
-                                                st.write("**Summary Result:**")
-                                                combined_response = "\n\n".join([r["response"] for r in responses])
-                                                st.write(combined_response)
+                                                st.write("**Coordinator's Final Evaluation:**")
+                                                st.write(response["final_evaluation"])
 
                                                 # Show detailed responses in collapsed expander
                                                 with st.expander("🔍 Detailed Agent Responses", expanded=False):

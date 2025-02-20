@@ -168,17 +168,41 @@ class AgentGroup:
                     "time": max(agent_times.values()) if agent_times else coordinator_time
                 }
 
-        # Yield final complete result
-        yield {
-            "phase": "complete",
-            "success": True,
-            "responses": responses,
-            "coordinator_analysis": analysis["analysis"],
-            "tokens": total_tokens,
-            "coordinator_time": coordinator_time,
-            "agent_times": agent_times,
-            "time": max(agent_times.values()) if agent_times else coordinator_time
-        }
+        # Get final evaluation from coordinator
+        final_evaluation_prompt = f"""Here are all agent responses for the user input: {user_input}
+
+        Agent responses:
+        {json.dumps(responses, indent=2)}
+
+        Please provide a final evaluation and synthesis of these responses.
+        Consider the strengths of each response and combine them into a cohesive final answer."""
+
+        self.coordinator.add_message("user", final_evaluation_prompt)
+        final_eval = self.api.generate_completion(
+            model=self.coordinator.model,
+            messages=self.coordinator.get_messages()
+        )
+
+        if final_eval["success"]:
+            # Yield final complete result with coordinator's evaluation
+            yield {
+                "phase": "complete",
+                "success": True,
+                "responses": responses,
+                "coordinator_analysis": analysis["analysis"],
+                "final_evaluation": final_eval["response"],
+                "tokens": total_tokens + final_eval["tokens"],
+                "coordinator_time": coordinator_time,
+                "agent_times": agent_times,
+                "time": max(agent_times.values()) if agent_times else coordinator_time
+            }
+        else:
+            yield {
+                "phase": "complete",
+                "success": False,
+                "error": "Failed to generate final evaluation",
+                "responses": responses
+            }
 
     def get_agents(self) -> Dict[str, Agent]:
         return self.agents

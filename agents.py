@@ -168,40 +168,48 @@ class AgentGroup:
                     "time": max(agent_times.values()) if agent_times else coordinator_time
                 }
 
-        # Get final evaluation from coordinator
-        final_evaluation_prompt = f"""Here are all agent responses for the user input: {user_input}
+        try:
+            # Get final evaluation from coordinator
+            final_evaluation_prompt = f"""Here are all agent responses for the user input: {user_input}
 
-        Agent responses:
-        {json.dumps(responses, indent=2)}
+            Agent responses:
+            {json.dumps(responses, indent=2)}
 
-        Please provide a final evaluation and synthesis of these responses.
-        Your response should be a clear, concise summary without any JSON formatting or technical metadata.
-        Focus on providing a coherent answer that combines the insights from all agents."""
+            Please provide a final evaluation and synthesis of these responses.
+            Your response should be a clear, concise summary without any JSON formatting or technical metadata.
+            Focus on providing a coherent answer that combines the insights from all agents."""
 
-        self.coordinator.add_message("user", final_evaluation_prompt)
-        final_eval = self.api.generate_completion(
-            model=self.coordinator.model,
-            messages=self.coordinator.get_messages()
-        )
+            self.coordinator.add_message("user", final_evaluation_prompt)
+            final_eval = self.api.generate_completion(
+                model=self.coordinator.model,
+                messages=self.coordinator.get_messages()
+            )
 
-        if final_eval["success"]:
-            # Yield final complete result with coordinator's evaluation
-            yield {
-                "phase": "complete",
-                "success": True,
-                "responses": responses,
-                "coordinator_analysis": analysis["analysis"],
-                "final_evaluation": final_eval["response"],
-                "tokens": total_tokens + final_eval["tokens"],
-                "coordinator_time": coordinator_time,
-                "agent_times": agent_times,
-                "time": max(agent_times.values()) if agent_times else coordinator_time
-            }
-        else:
+            if final_eval["success"]:
+                # Yield final complete result with coordinator's evaluation
+                yield {
+                    "phase": "complete",
+                    "success": True,
+                    "responses": responses,
+                    "coordinator_analysis": analysis["analysis"],
+                    "final_evaluation": final_eval["response"],
+                    "tokens": total_tokens + final_eval.get("tokens", 0),
+                    "coordinator_time": coordinator_time,
+                    "agent_times": agent_times,
+                    "time": max(agent_times.values()) if agent_times else coordinator_time
+                }
+            else:
+                yield {
+                    "phase": "complete",
+                    "success": False,
+                    "error": f"Final evaluation failed: {final_eval.get('error', 'Unknown error')}",
+                    "responses": responses
+                }
+        except Exception as e:
             yield {
                 "phase": "complete",
                 "success": False,
-                "error": "Failed to generate final evaluation",
+                "error": f"Error in final evaluation: {str(e)}",
                 "responses": responses
             }
 

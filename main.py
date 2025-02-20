@@ -8,8 +8,10 @@ import os
 
 # Page configuration
 import os
-os.environ['STREAMLIT_SERVER_PORT'] = '8501'
+os.environ['STREAMLIT_SERVER_PORT'] = '5000'
 os.environ['STREAMLIT_SERVER_ADDRESS'] = '0.0.0.0'
+os.environ['STREAMLIT_SERVER_HEADLESS'] = 'true'
+os.environ['STREAMLIT_SERVER_ENABLE_CORS'] = 'false'
 
 st.set_page_config(
     page_title="Multi-Agent Dashboard",

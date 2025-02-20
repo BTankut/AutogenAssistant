@@ -159,8 +159,18 @@ else:
                     )
                 with col2:
                     if st.button("🔄 Reset Chat", help="Start a new chat while keeping agent configurations"):
-                        # Clear conversation history but keep agent configurations
+                        # Clear conversation history
                         st.session_state.conversations = []
+
+                        # Reset all agent messages to their initial system messages
+                        for agent_name, agent in st.session_state.agent_group.get_agents().items():
+                            agent.messages = [{"role": "system", "content": agent.system_message}]
+
+                        # Reset coordinator messages if exists
+                        if st.session_state.coordinator:
+                            st.session_state.coordinator.messages = [
+                                {"role": "system", "content": st.session_state.coordinator.system_message}
+                            ]
 
                         # Clear any active user inputs
                         if 'user_input' in st.session_state:

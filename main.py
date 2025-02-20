@@ -34,6 +34,20 @@ with st.sidebar:
                 for model in models_response["models"]
             }
             st.session_state.available_models = available_models
+
+            # Load saved model selections if they exist
+            try:
+                with open('.model_selections.json', 'r') as f:
+                    saved_models = json.load(f)
+                    st.session_state.selected_models = saved_models
+            except FileNotFoundError:
+                if 'selected_models' not in st.session_state:
+                    st.session_state.selected_models = {
+                        'coordinator': None,
+                        'user_proxy': None,
+                        'coder': None,
+                        'critic': None
+                    }
         else:
             st.error("Failed to fetch models from OpenRouter")
             st.session_state.available_models = {}
@@ -42,20 +56,21 @@ with st.sidebar:
         if 'agent_group' not in st.session_state:
             st.session_state.agent_group = AgentGroup(api)
 
-        # Initialize selected_models in session state if it doesn't exist
-        if 'selected_models' not in st.session_state:
-            st.session_state.selected_models = {}
-
         # Coordinator setup
         if not st.session_state.coordinator:
             st.subheader("Setup Coordinator")
             if st.session_state.available_models:
+                # Get saved coordinator model or default to first
+                default_coordinator_model = st.session_state.selected_models.get('coordinator')
+                default_index = 0
+                if default_coordinator_model in st.session_state.available_models:
+                    default_index = list(st.session_state.available_models.keys()).index(default_coordinator_model)
+
                 coordinator_model = st.selectbox(
                     "Coordinator Model",
                     list(st.session_state.available_models.keys()),
                     key="coordinator_model",
-                    index=0 if st.session_state.selected_models['coordinator'] is None
-                    else list(st.session_state.available_models.keys()).index(st.session_state.selected_models['coordinator'])
+                    index=default_index
                 )
 
                 if st.button("Setup Coordinator"):
@@ -68,6 +83,9 @@ with st.sidebar:
                     st.session_state.coordinator = coordinator
                     # Save selected model
                     st.session_state.selected_models['coordinator'] = coordinator_model
+                    # Save to file
+                    with open('.model_selections.json', 'w') as f:
+                        json.dump(st.session_state.selected_models, f)
                     st.success("Coordinator agent setup successfully!")
 
         # Agent creation
@@ -83,9 +101,11 @@ with st.sidebar:
         )
 
         if st.session_state.available_models:
-            # Get previous selected model for this role or default to first
-            default_index = 0 if st.session_state.selected_models.get(agent_role) is None \
-                else list(st.session_state.available_models.keys()).index(st.session_state.selected_models.get(agent_role))
+            # Get saved model for this role or default to first
+            default_model = st.session_state.selected_models.get(agent_role)
+            default_index = 0
+            if default_model in st.session_state.available_models:
+                default_index = list(st.session_state.available_models.keys()).index(default_model)
 
             agent_model = st.selectbox(
                 "Model",
@@ -103,8 +123,11 @@ with st.sidebar:
                 )
                 st.session_state.agent_group.add_agent(new_agent)
                 st.session_state.current_agents.append(role_config["name"])
-                # Save selected model for this role
+                # Save selected model
                 st.session_state.selected_models[agent_role] = agent_model
+                # Save to file
+                with open('.model_selections.json', 'w') as f:
+                    json.dump(st.session_state.selected_models, f)
                 st.success(f"Agent {role_config['name']} added successfully!")
         else:
             st.warning("No models available. Please check your API key.")

@@ -1,4 +1,5 @@
 import json
+import time
 from typing import List, Dict, Any
 from api import OpenRouterAPI
 
@@ -13,6 +14,8 @@ class Agent:
         self.model = model
         self.system_message = system_message
         self.messages = [{"role": "system", "content": system_message}]
+        self.start_time = None
+        self.end_time = None
 
     def add_message(self, role: str, content: str):
         self.messages.append({"role": role, "content": content})
@@ -20,12 +23,21 @@ class Agent:
     def get_messages(self) -> List[Dict[str, str]]:
         return self.messages
 
+    def start_processing(self):
+        self.start_time = time.time()
+
+    def end_processing(self):
+        self.end_time = time.time()
+        return self.end_time - self.start_time
+
 class CoordinatorAgent(Agent):
     def __init__(self, name: str, model: str, system_message: str):
         super().__init__(name, "coordinator", model, system_message)
 
     def analyze_task(self, user_input: str, api: OpenRouterAPI) -> Dict[str, Any]:
         """Analyze user input to determine which agents should respond"""
+        self.start_processing()
+
         analysis_prompt = f"""User message: {user_input}
 
         Analyze this message and determine which types of agents should respond.
@@ -37,23 +49,27 @@ class CoordinatorAgent(Agent):
             messages=self.get_messages()
         )
 
+        process_time = self.end_processing()
+
         if response["success"]:
             self.add_message("assistant", response["response"])
             try:
-                # Parse response to extract selected roles and reasoning
                 return {
                     "success": True,
-                    "analysis": response["response"]
+                    "analysis": response["response"],
+                    "time": process_time
                 }
             except Exception as e:
                 return {
                     "success": False,
-                    "error": f"Failed to parse analysis: {str(e)}"
+                    "error": f"Failed to parse analysis: {str(e)}",
+                    "time": process_time
                 }
         else:
             return {
                 "success": False,
-                "error": response["error"]
+                "error": response["error"],
+                "time": process_time
             }
 
 class AgentGroup:
@@ -77,10 +93,16 @@ class AgentGroup:
             return {"success": False, "error": "Agent not found"}
 
         agent = self.agents[agent_name]
-        return self.api.generate_completion(
+        agent.start_processing()
+        response = self.api.generate_completion(
             model=agent.model,
             messages=agent.get_messages()
         )
+        process_time = agent.end_processing()
+
+        if response["success"]:
+            response["time"] = process_time
+        return response
 
     def get_collective_response(self, user_input: str) -> Dict[str, Any]:
         """Get coordinated responses from multiple agents"""
@@ -91,33 +113,44 @@ class AgentGroup:
             }
 
         # Get task analysis from coordinator
+        self.coordinator.start_processing()
         analysis = self.coordinator.analyze_task(user_input, self.api)
+        coordinator_time = self.coordinator.end_processing()
+
         if not analysis["success"]:
-            return analysis
+            return {
+                **analysis,
+                "coordinator_time": coordinator_time
+            }
 
         responses = []
         total_tokens = 0
-        max_time = 0
+        agent_times = {}
 
         # Get responses from selected agents
         for agent_name, agent in self.agents.items():
+            agent.start_processing()
             agent.add_message("user", user_input)
             response = self.get_response(agent_name)
+            process_time = agent.end_processing()
 
             if response["success"]:
                 responses.append({
                     "agent": agent_name,
-                    "response": response["response"]
+                    "response": response["response"],
+                    "time": process_time
                 })
                 total_tokens += response["tokens"]
-                max_time = max(max_time, response["time"])
+                agent_times[agent_name] = process_time
 
         return {
             "success": True,
             "responses": responses,
             "coordinator_analysis": analysis["analysis"],
             "tokens": total_tokens,
-            "time": max_time
+            "coordinator_time": coordinator_time,
+            "agent_times": agent_times,
+            "time": max(agent_times.values()) if agent_times else coordinator_time
         }
 
     def get_agents(self) -> Dict[str, Agent]:

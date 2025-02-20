@@ -175,7 +175,8 @@ class AgentGroup:
         {json.dumps(responses, indent=2)}
 
         Please provide a final evaluation and synthesis of these responses.
-        Consider the strengths of each response and combine them into a cohesive final answer."""
+        Your response should be a clear, concise summary without any JSON formatting or technical metadata.
+        Focus on providing a coherent answer that combines the insights from all agents."""
 
         self.coordinator.add_message("user", final_evaluation_prompt)
         final_eval = self.api.generate_completion(

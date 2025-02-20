@@ -7,11 +7,10 @@ from utils import format_conversation, create_metrics_charts, update_metrics
 import os
 
 # Page configuration
-import os
-os.environ['STREAMLIT_SERVER_PORT'] = '5000'
-os.environ['STREAMLIT_SERVER_ADDRESS'] = '0.0.0.0'
-os.environ['STREAMLIT_SERVER_HEADLESS'] = 'true'
-os.environ['STREAMLIT_SERVER_ENABLE_CORS'] = 'false'
+st.set_option('server.port', 8501)
+st.set_option('server.address', '0.0.0.0')
+st.set_option('server.headless', True)
+st.set_option('server.enableCORS', False)
 
 st.set_page_config(
     page_title="Multi-Agent Dashboard",

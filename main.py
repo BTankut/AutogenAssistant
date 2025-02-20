@@ -4,6 +4,7 @@ from config import DEFAULT_AGENT_ROLES, init_session_state
 from api import OpenRouterAPI
 from agents import Agent, CoordinatorAgent, AgentGroup
 from utils import format_conversation, create_metrics_charts, update_metrics
+import os
 
 # Page configuration
 st.set_page_config(
@@ -19,11 +20,8 @@ init_session_state()
 with st.sidebar:
     st.title("🤖 Agent Configuration")
 
-    # API Key input
-    api_key = st.text_input("OpenRouter API Key", 
-                           value=st.session_state.api_key,
-                           type="password")
-
+    # Use API key from environment
+    api_key = os.getenv('OPENROUTER_API_KEY')
     if api_key:
         st.session_state.api_key = api_key
         api = OpenRouterAPI(api_key)

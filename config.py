@@ -1,13 +1,5 @@
 import streamlit as st
 
-# Available models on OpenRouter
-AVAILABLE_MODELS = {
-    "gpt-4": "openai/gpt-4",
-    "claude-2": "anthropic/claude-2",
-    "llama-2": "meta-llama/llama-2-70b-chat",
-    "palm-2": "google/palm-2-chat-bison",
-}
-
 # Default agent roles
 DEFAULT_AGENT_ROLES = {
     "user_proxy": {
@@ -41,3 +33,5 @@ def init_session_state():
             'response_times': [],
             'model_usage': {}
         }
+    if 'available_models' not in st.session_state:
+        st.session_state.available_models = {}

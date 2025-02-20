@@ -162,7 +162,7 @@ else:
                         # Clear current progress indicators but keep history
                         if 'current_progress' in st.session_state:
                             del st.session_state.current_progress
-                        st.experimental_rerun()
+                        st.rerun()
 
                 # Display available agents
                 st.subheader("Available Agents")

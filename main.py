@@ -7,6 +7,10 @@ from utils import format_conversation, create_metrics_charts, update_metrics
 import os
 
 # Page configuration
+import os
+os.environ['STREAMLIT_SERVER_PORT'] = '8501'
+os.environ['STREAMLIT_SERVER_ADDRESS'] = '0.0.0.0'
+
 st.set_page_config(
     page_title="Multi-Agent Dashboard",
     page_icon="🤖",

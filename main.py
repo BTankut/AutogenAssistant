@@ -66,15 +66,14 @@ with st.sidebar:
 
         # Agent creation
         st.subheader("Create New Agent")
-        agent_name = st.text_input("Agent Name")
 
         # Show roles with descriptions
         roles = [role for role in DEFAULT_AGENT_ROLES.keys() if role != "coordinator"]
-        
+
         agent_role = st.selectbox(
             "Role", 
             roles,
-            format_func=lambda x: f"{x.title()}: {DEFAULT_AGENT_ROLES[x]['description']}"
+            format_func=lambda x: f"{DEFAULT_AGENT_ROLES[x]['name']}: {DEFAULT_AGENT_ROLES[x]['description']}"
         )
 
         if st.session_state.available_models:
@@ -83,14 +82,14 @@ with st.sidebar:
             if st.button("Add Agent"):
                 role_config = DEFAULT_AGENT_ROLES[agent_role]
                 new_agent = Agent(
-                    name=agent_name,
+                    name=role_config["name"],
                     role=agent_role,
                     model=st.session_state.available_models[agent_model],
                     system_message=role_config["system_message"]
                 )
                 st.session_state.agent_group.add_agent(new_agent)
-                st.session_state.current_agents.append(agent_name)
-                st.success(f"Agent {agent_name} added successfully!")
+                st.session_state.current_agents.append(role_config["name"])
+                st.success(f"Agent {role_config['name']} added successfully!")
         else:
             st.warning("No models available. Please check your API key.")
 

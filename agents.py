@@ -187,8 +187,13 @@ class AgentGroup:
             {json.dumps(responses, indent=2)}
 
             Please provide a final evaluation and synthesis of these responses.
-            Your response should be a clear, concise summary without any JSON formatting or technical metadata.
-            Focus on providing a coherent answer that combines the insights from all agents."""
+            If the user is requesting code, you MUST include the final, optimized code implementation after your analysis.
+            Your response should follow this format:
+
+            1. Analysis: A clear, concise summary of the different approaches and their pros/cons
+            2. Final Implementation: If code was requested, provide the complete, optimized code that combines the best aspects of all responses
+            
+            Make sure to include actual code, not just descriptions of what the code should do."""
 
             self.coordinator.add_message("user", final_evaluation_prompt)
             final_eval = self.api.generate_completion(

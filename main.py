@@ -238,7 +238,8 @@ else:
                                         progress_bar.progress(5)
 
                                         st.write("🤖 **Phase 1: Coordinator Analysis**")
-                                        with agent_progress["Coordinator"]:
+                                        # Use coordinator's actual name instead of hardcoded "Coordinator"
+                                        with agent_progress[st.session_state.coordinator.name]:
                                             st.info("Coordinator is analyzing the message...")
                                         progress_bar.progress(10)
 

@@ -1,0 +1,1 @@
+{"coordinator": "cognitivecomputations/dolphin3.0-mistral-24b:free", "user_proxy": "google/gemini-2.0-flash-thinking-exp-1219:free", "coder": "mistralai/mistral-small-24b-instruct-2501:free", "critic": "mistralai/mistral-7b-instruct:free"}

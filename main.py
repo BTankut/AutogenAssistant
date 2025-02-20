@@ -271,52 +271,52 @@ else:
 
                                             if response["phase"] == "coordinator":
                                                 # Step 1: Coordinator Analysis (0-40%)
-                                                st.write("🤖 **Phase 1: Coordinator Analysis**")
+                                                progress_placeholder.write("🔄 Analiz yapılıyor...")
                                                 progress_bar.progress(30)
 
                                                 with coordinator_analysis_placeholder:
-                                                    st.success("✅ Coordinator analysis complete")
-                                                    with st.expander("🔍 Coordinator's Analysis", expanded=True):
+                                                    with st.expander("🔍 Detaylı Analiz", expanded=False):
                                                         st.markdown(response["analysis"])
                                                 progress_bar.progress(40)
 
-                                                # Prepare for agent responses
-                                                st.write("🤖 **Phase 2: Agent Responses**")
-
                                             elif response["phase"] == "agent_response":
-                                                # Calculate progress based on number of completed responses
+                                                # Update progress based on completed responses
                                                 total_agents = len(st.session_state.agent_group.get_agents())
                                                 completed_agents = len(response["responses"])
                                                 progress = 40 + (completed_agents / total_agents * 50)
 
-                                                # Update progress for current agent
-                                                with agent_progress[response["current_agent"]]:
-                                                    st.success(f"✅ {response['current_agent']} complete")
-
-                                                # Show agent response
-                                                with agent_responses_container:
-                                                    st.write(f"\n**{response['current_agent']}** responded:")
-                                                    st.write(response["agent_response"]["response"])
+                                                # Update progress message
+                                                progress_placeholder.write(f"🤖 Agent yanıtları alınıyor... ({completed_agents}/{total_agents})")
 
                                                 # Update progress bar
                                                 progress_bar.progress(int(progress))
 
-                                                # Update metrics
-                                                total_tokens = response["tokens"]
-                                                responses = response["responses"]
+                                                # Collect responses
+                                                responses.append(response["agent_response"])
 
                                             elif response["phase"] == "complete":
                                                 # Final Processing (90-100%)
-                                                st.write("🤖 **Phase 3: Completion**")
+                                                progress_placeholder.write("✨ Tamamlanıyor...")
                                                 progress_bar.progress(95)
 
-                                                # Show performance metrics
-                                                with st.expander("📊 Response Metrics", expanded=True):
-                                                    st.write(f"Total tokens used: {response['tokens']}")
-                                                    st.write(f"Total response time: {response['time']:.2f} seconds")
+                                                # Show combined result first
+                                                st.success("✅ İşlem tamamlandı!")
+                                                st.write("**Özet Sonuç:**")
+                                                combined_response = "\n\n".join([r["response"] for r in responses])
+                                                st.write(combined_response)
+
+                                                # Show detailed responses in collapsed expander
+                                                with st.expander("🔍 Detaylı Agent Yanıtları", expanded=False):
+                                                    for resp in responses:
+                                                        st.write(f"\n**{resp['agent']}** yanıtı:")
+                                                        st.write(resp["response"])
+
+                                                # Show metrics in collapsed expander
+                                                with st.expander("📊 Performans Metrikleri", expanded=False):
+                                                    st.write(f"Toplam token: {response['tokens']}")
+                                                    st.write(f"Toplam süre: {response['time']:.2f} saniye")
 
                                                 progress_bar.progress(100)
-                                                st.success("✅ Collective response complete!")
 
                                                 # Update metrics
                                                 update_metrics(
@@ -338,7 +338,7 @@ else:
                                                 })
 
                                     except Exception as e:
-                                        st.error(f"An error occurred: {str(e)}")
+                                        st.error(f"Bir hata oluştu: {str(e)}")
                                         progress_bar.empty()
 
                 # Display conversation history

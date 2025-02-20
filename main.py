@@ -14,11 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Create Streamlit script context
-import threading
-import streamlit.runtime.scriptrunner.script_runner as script_runner
-script_runner.add_script_run_ctx(threading.current_thread())
-
 # Theme configuration
 st.markdown("""
     <style>
@@ -400,5 +395,3 @@ else:
 
         # Display charts
         create_metrics_charts(st.session_state.metrics)
-
-#Note: The edited code's app.run() is not directly applicable as the original uses streamlit directly.  Further modification might be needed depending on the underlying structure of the application.

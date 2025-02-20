@@ -119,8 +119,14 @@ else:
 
                 # Display available agents
                 st.subheader("Available Agents")
+
+                # First display coordinator if exists
+                if st.session_state.coordinator:
+                    st.write(f"• **{st.session_state.coordinator.name}** ({st.session_state.coordinator.model})")
+
+                # Then display other agents
                 for agent_name, agent in agents.items():
-                    st.write(f"• **{agent_name}** ({agent.role})")
+                    st.write(f"• **{agent_name}** ({agent.model})")
 
                 # Message input
                 user_input = st.text_area("Your message")

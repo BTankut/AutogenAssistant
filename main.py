@@ -15,9 +15,9 @@ st.set_page_config(
 )
 
 # Create Streamlit script context
-from streamlit.script_run_context import add_script_run_ctx
 import threading
-add_script_run_ctx()
+import streamlit.runtime.scriptrunner.script_runner as script_runner
+script_runner.add_script_run_ctx(threading.current_thread())
 
 # Theme configuration
 st.markdown("""

@@ -14,20 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Theme configuration
-st.markdown("""
-    <style>
-    .stApp {
-        background: var(--background-color);
-        color: var(--text-color);
-    }
-    :root {
-        --background-color: #0e1117;
-        --text-color: #fafafa;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
 # Error handling wrapper
 def handle_error(func):
     def wrapper(*args, **kwargs):

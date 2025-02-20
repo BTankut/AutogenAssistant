@@ -6,11 +6,6 @@ from agents import Agent, CoordinatorAgent, AgentGroup
 from utils import format_conversation, create_metrics_charts, update_metrics
 import os
 
-# Create Streamlit script context
-from streamlit.script_run_context import add_script_run_ctx
-import threading
-add_script_run_ctx()
-
 # Page configuration
 st.set_page_config(
     page_title="Multi-Agent Dashboard",
@@ -19,12 +14,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.set_page_config(
-    page_title="Multi-Agent Dashboard",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# Create Streamlit script context
+from streamlit.script_run_context import add_script_run_ctx
+import threading
+add_script_run_ctx()
 
 # Theme configuration
 st.markdown("""

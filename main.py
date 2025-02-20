@@ -149,12 +149,20 @@ else:
             agents = st.session_state.agent_group.get_agents()
 
             if agents:
-                # Chat mode selection
-                chat_mode = st.radio(
-                    "Chat Mode",
-                    ["Single Agent", "Collective (Coordinated)"],
-                    horizontal=True
-                )
+                # Chat mode selection and Reset Chat button in the same row
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    chat_mode = st.radio(
+                        "Chat Mode",
+                        ["Single Agent", "Collective (Coordinated)"],
+                        horizontal=True
+                    )
+                with col2:
+                    if st.button("🔄 Reset Chat", help="Start a new chat while keeping agent configurations"):
+                        # Clear current progress indicators but keep history
+                        if 'current_progress' in st.session_state:
+                            del st.session_state.current_progress
+                        st.experimental_rerun()
 
                 # Display available agents
                 st.subheader("Available Agents")

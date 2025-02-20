@@ -1,3 +1,4 @@
+
 # Multi-Agent Dashboard with OpenRouter Integration
 
 A comprehensive dashboard for managing and interacting with multiple AI agents using OpenRouter API. This application provides a streamlined interface for coordinated AI interactions with advanced configuration options and real-time progress tracking.
@@ -6,8 +7,9 @@ A comprehensive dashboard for managing and interacting with multiple AI agents u
 
 ### Core Functionality
 - **Multi-Agent System**: Coordinate multiple AI agents with different roles and capabilities
-- **Dynamic Model Selection**: Choose from various OpenRouter models for each agent
-- **Coordinated Responses**: Get collective responses from multiple agents orchestrated by a coordinator
+- **Model Persistence**: Automatically saves and loads model selections for each agent role
+- **Dynamic Model Selection**: Choose from available OpenRouter models for each agent
+- **Coordinated Chain Responses**: Sequential agent interactions orchestrated by a coordinator
 - **Real-time Progress Tracking**: Visual feedback on processing status and agent responses
 
 ### User Interface
@@ -17,10 +19,10 @@ A comprehensive dashboard for managing and interacting with multiple AI agents u
 - **Visual Analytics**: Charts and graphs for performance monitoring
 
 ### Agent Types
-- **Coordinator**: Analyzes tasks and orchestrates other agents
-- **Human Assistant**: Represents user interests and manages task delegation
-- **Code Assistant**: Specializes in programming and code review
-- **Critic**: Provides thoughtful analysis and feedback
+- **Coordinator**: Orchestrates task distribution and synthesizes final responses
+- **Human Assistant**: Represents user interests and handles natural language tasks
+- **Code Assistant**: Specializes in programming and technical implementation
+- **Critic**: Provides analysis and quality assessment
 
 ## 🚀 Getting Started
 
@@ -51,47 +53,35 @@ streamlit run main.py
 ### Setting Up Agents
 
 1. **Configure Coordinator**:
-   - Select a model for the coordinator agent
+   - Select preferred model from available OpenRouter models
+   - Model selection is automatically saved for future sessions
    - Click "Setup Coordinator" to initialize
 
 2. **Add Specialized Agents**:
-   - Choose an agent role (Human Assistant, Code Assistant, Critic)
-   - Select a model for the agent
+   - Choose agent role (Human Assistant, Code Assistant, Critic)
+   - Select model from available options
+   - Model selections persist between sessions
    - Click "Add Agent" to create
 
 ### Chat Modes
 
 1. **Single Agent Mode**:
-   - Select specific agent to interact with
-   - Send messages directly to chosen agent
+   - Direct interaction with specific agent
+   - Utilizes agent's specialized capabilities
    - View individual responses
 
 2. **Collective Mode**:
-   - Engage with all configured agents
-   - Get coordinated responses
-   - View progress in real-time
-   - Access detailed analysis in expandable sections
+   - Chain-based interaction with all configured agents
+   - Coordinator analyzes and distributes tasks
+   - Real-time progress tracking
+   - Synthesized final response
 
-### Viewing Results
+### Performance Monitoring
 
-- **Summary View**: Quick overview of combined agent responses
-- **Detailed Analysis**: Expandable sections for in-depth information
-- **Performance Metrics**: Track token usage and response times
-- **Conversation History**: Review past interactions in collapsible sections
-
-## 📊 Performance Monitoring
-
-- Track total tokens used
-- Monitor average response times
-- View model usage distribution
-- Analyze response time trends
-
-## 🛠 Technical Stack
-
-- **Frontend**: Streamlit
-- **API Integration**: OpenRouter API
-- **Data Visualization**: Plotly
-- **Progress Tracking**: Custom implementation
+- Track token usage per interaction
+- Monitor response times
+- View model distribution analytics
+- Access detailed agent performance metrics
 
 ## 🔐 Security
 
@@ -101,9 +91,9 @@ streamlit run main.py
 
 ## 📝 Notes
 
-- The application automatically saves model selections for each agent role
-- Reset chat functionality maintains agent configurations while clearing conversation history
-- Progress tracking provides real-time feedback during collective responses
+- Model selections are automatically saved in `.model_selections.json`
+- Reset chat functionality maintains agent configurations
+- Real-time progress tracking shows chain execution status
 
 ## 🤝 Contributing
 

@@ -48,3 +48,12 @@ def init_session_state():
         st.session_state.available_models = {}
     if 'coordinator' not in st.session_state:
         st.session_state.coordinator = None
+
+    # Remember selected models for each role
+    if 'selected_models' not in st.session_state:
+        st.session_state.selected_models = {
+            'coordinator': None,
+            'user_proxy': None,
+            'coder': None,
+            'critic': None
+        }

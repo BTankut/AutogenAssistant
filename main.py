@@ -227,6 +227,10 @@ else:
                                 for agent_name in st.session_state.agent_group.get_agents().keys():
                                     agent_progress[agent_name] = st.empty()
 
+                                # Create placeholders for responses
+                                coordinator_analysis_placeholder = st.empty()
+                                agent_responses_container = st.container()
+
                                 with main_container:
                                     try:
                                         # Step 1: Coordinator Analysis (0-20%)
@@ -234,55 +238,79 @@ else:
                                         progress_bar.progress(5)
 
                                         st.write("🤖 **Phase 1: Coordinator Analysis**")
-                                        st.info("Coordinator is analyzing the message...")
+                                        with agent_progress["Coordinator"]:
+                                            st.info("Coordinator is analyzing the message...")
                                         progress_bar.progress(10)
 
-                                        # Get collective response
-                                        response = st.session_state.agent_group.get_collective_response(
-                                            user_input
+                                        # Get coordinator analysis
+                                        analysis = st.session_state.coordinator.analyze_task(
+                                            user_input,
+                                            st.session_state.agent_group.api
                                         )
 
-                                        if response["success"]:
-                                            # Step 2: Show Analysis Result (20-40%)
-                                            st.success("✅ Coordinator analysis complete")
+                                        if analysis["success"]:
+                                            # Show coordinator analysis
+                                            with coordinator_analysis_placeholder:
+                                                st.success("✅ Coordinator analysis complete")
+                                                with st.expander("🔍 Coordinator's Analysis", expanded=True):
+                                                    st.markdown(analysis["analysis"])
                                             progress_bar.progress(30)
 
-                                            with st.expander("🔍 Coordinator's Analysis", expanded=True):
-                                                st.markdown(response["coordinator_analysis"])
-                                            progress_bar.progress(40)
-
-                                            # Step 3: Agent Responses (40-90%)
+                                            # Step 2: Agent Responses (30-90%)
                                             st.write("🤖 **Phase 2: Agent Responses**")
-                                            total_agents = len(response["responses"])
-                                            progress_increment = 50 / total_agents if total_agents > 0 else 0
+                                            total_agents = len(st.session_state.agent_group.get_agents())
+                                            progress_increment = 60 / total_agents if total_agents > 0 else 0
 
-                                            for idx, agent_response in enumerate(response["responses"]):
-                                                agent_name = agent_response['agent']
-                                                current_progress = 40 + ((idx + 1) * progress_increment)
+                                            responses = []
+                                            total_tokens = 0
+                                            agent_times = {}
+
+                                            # Process each agent's response individually
+                                            for idx, (agent_name, agent) in enumerate(st.session_state.agent_group.get_agents().items()):
+                                                current_progress = 30 + ((idx + 1) * progress_increment)
 
                                                 # Update agent-specific progress
                                                 with agent_progress[agent_name]:
                                                     st.info(f"Processing: {agent_name}")
 
-                                                # Show agent response
-                                                st.write(f"\n**{agent_name}** responded:")
-                                                st.write(agent_response['response'])
+                                                # Get agent response
+                                                agent.add_message("user", user_input)
+                                                response = st.session_state.agent_group.get_response(agent_name)
+
+                                                if response["success"]:
+                                                    # Show agent response immediately
+                                                    with agent_responses_container:
+                                                        st.write(f"\n**{agent_name}** responded:")
+                                                        st.write(response["response"])
+
+                                                    # Update metrics
+                                                    responses.append({
+                                                        "agent": agent_name,
+                                                        "response": response["response"],
+                                                        "time": response["time"]
+                                                    })
+                                                    total_tokens += response["tokens"]
+                                                    agent_times[agent_name] = response["time"]
+
+                                                    # Clear agent progress indicator
+                                                    with agent_progress[agent_name]:
+                                                        st.success(f"✅ {agent_name} complete")
+                                                else:
+                                                    with agent_progress[agent_name]:
+                                                        st.error(f"❌ {agent_name} failed: {response['error']}")
 
                                                 # Update overall progress
                                                 progress_bar.progress(int(current_progress))
 
-                                                # Clear agent progress indicator
-                                                with agent_progress[agent_name]:
-                                                    st.success(f"✅ {agent_name} complete")
-
-                                            # Step 4: Final Processing (90-100%)
+                                            # Step 3: Final Processing (90-100%)
                                             st.write("🤖 **Phase 3: Completion**")
                                             progress_bar.progress(95)
 
-                                            # Show performance metrics
+                                            # Show final metrics
                                             with st.expander("📊 Response Metrics", expanded=True):
-                                                st.write(f"Total tokens used: {response['tokens']}")
-                                                st.write(f"Total response time: {response['time']:.2f} seconds")
+                                                st.write(f"Total tokens used: {total_tokens}")
+                                                max_time = max(agent_times.values()) if agent_times else analysis["time"]
+                                                st.write(f"Total response time: {max_time:.2f} seconds")
 
                                             progress_bar.progress(100)
                                             st.success("✅ Collective response complete!")
@@ -292,8 +320,8 @@ else:
                                                 st.session_state.metrics,
                                                 {
                                                     "success": True,
-                                                    "tokens": response["tokens"],
-                                                    "time": response["time"]
+                                                    "tokens": total_tokens,
+                                                    "time": max_time
                                                 },
                                                 "collective"
                                             )
@@ -302,11 +330,11 @@ else:
                                             st.session_state.conversations.append({
                                                 "mode": "collective",
                                                 "user_input": user_input,
-                                                "coordinator_analysis": response["coordinator_analysis"],
-                                                "responses": response["responses"]
+                                                "coordinator_analysis": analysis["analysis"],
+                                                "responses": responses
                                             })
                                         else:
-                                            st.error(f"Error: {response['error']}")
+                                            st.error(f"Error in coordinator analysis: {analysis['error']}")
                                             progress_bar.empty()
 
                                     except Exception as e:

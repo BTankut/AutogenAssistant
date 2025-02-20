@@ -172,9 +172,9 @@ else:
                                 {"role": "system", "content": st.session_state.coordinator.system_message}
                             ]
 
-                        # Clear the text area
-                        if "user_message_input" in st.session_state:
-                            st.session_state.user_message_input = ""
+                        # Clear any active user inputs
+                        if 'user_input' in st.session_state:
+                            del st.session_state.user_input
 
                         # Force the UI to refresh
                         st.rerun()
@@ -191,7 +191,7 @@ else:
                     st.write(f"• **{agent_name}** ({agent.model})")
 
                 # Message input
-                user_input = st.text_area("Your message", key="user_message_input")
+                user_input = st.text_area("Your message")
 
                 if chat_mode == "Single Agent":
                     selected_agent = st.selectbox(

@@ -176,21 +176,49 @@ else:
                     else:
                         if st.button("Send to All"):
                             if user_input:
-                                with st.spinner("Getting coordinated response..."):
+                                # Create a placeholder for progress
+                                progress_placeholder = st.empty()
+
+                                # Show overall progress bar
+                                progress_bar = st.progress(0)
+
+                                with progress_placeholder.container():
+                                    # Step 1: Coordinator Analysis
+                                    st.info("🤖 Coordinator is analyzing the message...")
+                                    progress_bar.progress(25)
+
                                     # Get collective response
                                     response = st.session_state.agent_group.get_collective_response(
                                         user_input
                                     )
 
                                     if response["success"]:
-                                        # Display coordinator's analysis
-                                        st.write("Coordinator's Analysis:")
-                                        st.write(response["coordinator_analysis"])
+                                        # Step 2: Show Analysis Result
+                                        st.success("✅ Coordinator analysis complete")
+                                        progress_bar.progress(50)
 
-                                        # Display agent responses
-                                        for agent_response in response["responses"]:
-                                            st.write(f"\n**{agent_response['agent']}**:")
-                                            st.write(agent_response['response'])
+                                        # Display coordinator's analysis in an expander
+                                        with st.expander("🔍 Coordinator's Analysis", expanded=True):
+                                            st.markdown(response["coordinator_analysis"])
+
+                                        # Step 3: Show Agent Responses
+                                        st.info("🤖 Getting responses from selected agents...")
+                                        progress_bar.progress(75)
+
+                                        # Display agent responses with status
+                                        for idx, agent_response in enumerate(response["responses"]):
+                                            with st.spinner(f"Processing response from {agent_response['agent']}..."):
+                                                st.write(f"\n**{agent_response['agent']}** responded:")
+                                                st.write(agent_response['response'])
+
+                                        # Step 4: Complete
+                                        progress_bar.progress(100)
+                                        st.success("✅ All agents have responded!")
+
+                                        # Show performance metrics
+                                        with st.expander("📊 Response Metrics"):
+                                            st.write(f"Total tokens used: {response['tokens']}")
+                                            st.write(f"Total response time: {response['time']:.2f} seconds")
 
                                         # Update metrics
                                         update_metrics(
@@ -212,6 +240,7 @@ else:
                                         })
                                     else:
                                         st.error(f"Error: {response['error']}")
+                                        progress_bar.empty()
 
                 # Display conversation history
                 st.subheader("Conversation History")

@@ -271,11 +271,11 @@ else:
 
                                             if response["phase"] == "coordinator":
                                                 # Step 1: Coordinator Analysis (0-40%)
-                                                progress_placeholder.write("🔄 Analiz yapılıyor...")
+                                                progress_placeholder.write("🔄 Analyzing input...")
                                                 progress_bar.progress(30)
 
                                                 with coordinator_analysis_placeholder:
-                                                    with st.expander("🔍 Detaylı Analiz", expanded=False):
+                                                    with st.expander("🔍 Detailed Analysis", expanded=False):
                                                         st.markdown(response["analysis"])
                                                 progress_bar.progress(40)
 
@@ -286,7 +286,7 @@ else:
                                                 progress = 40 + (completed_agents / total_agents * 50)
 
                                                 # Update progress message
-                                                progress_placeholder.write(f"🤖 Agent yanıtları alınıyor... ({completed_agents}/{total_agents})")
+                                                progress_placeholder.write(f"🤖 Getting agent responses... ({completed_agents}/{total_agents})")
 
                                                 # Update progress bar
                                                 progress_bar.progress(int(progress))
@@ -296,25 +296,25 @@ else:
 
                                             elif response["phase"] == "complete":
                                                 # Final Processing (90-100%)
-                                                progress_placeholder.write("✨ Tamamlanıyor...")
+                                                progress_placeholder.write("✨ Finalizing...")
                                                 progress_bar.progress(95)
 
                                                 # Show combined result first
-                                                st.success("✅ İşlem tamamlandı!")
-                                                st.write("**Özet Sonuç:**")
+                                                st.success("✅ Process completed!")
+                                                st.write("**Summary Result:**")
                                                 combined_response = "\n\n".join([r["response"] for r in responses])
                                                 st.write(combined_response)
 
                                                 # Show detailed responses in collapsed expander
-                                                with st.expander("🔍 Detaylı Agent Yanıtları", expanded=False):
+                                                with st.expander("🔍 Detailed Agent Responses", expanded=False):
                                                     for resp in responses:
-                                                        st.write(f"\n**{resp['agent']}** yanıtı:")
+                                                        st.write(f"\n**{resp['agent']}** response:")
                                                         st.write(resp["response"])
 
                                                 # Show metrics in collapsed expander
-                                                with st.expander("📊 Performans Metrikleri", expanded=False):
-                                                    st.write(f"Toplam token: {response['tokens']}")
-                                                    st.write(f"Toplam süre: {response['time']:.2f} saniye")
+                                                with st.expander("📊 Performance Metrics", expanded=False):
+                                                    st.write(f"Total tokens: {response['tokens']}")
+                                                    st.write(f"Total time: {response['time']:.2f} seconds")
 
                                                 progress_bar.progress(100)
 
@@ -338,7 +338,7 @@ else:
                                                 })
 
                                     except Exception as e:
-                                        st.error(f"Bir hata oluştu: {str(e)}")
+                                        st.error(f"An error occurred: {str(e)}")
                                         progress_bar.empty()
 
                 # Display conversation history

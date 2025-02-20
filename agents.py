@@ -1,6 +1,6 @@
 import json
 import time
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Generator
 from api import OpenRouterAPI
 
 class Agent:
@@ -104,13 +104,14 @@ class AgentGroup:
             response["time"] = process_time
         return response
 
-    def get_collective_response(self, user_input: str) -> Dict[str, Any]:
-        """Get coordinated responses from multiple agents"""
+    def get_collective_response(self, user_input: str) -> Generator[Dict[str, Any], None, None]:
+        """Get coordinated responses from multiple agents, yielding intermediate results"""
         if not self.coordinator:
-            return {
+            yield {
                 "success": False,
                 "error": "No coordinator agent available"
             }
+            return
 
         # Get task analysis from coordinator
         self.coordinator.start_processing()
@@ -118,10 +119,19 @@ class AgentGroup:
         coordinator_time = self.coordinator.end_processing()
 
         if not analysis["success"]:
-            return {
+            yield {
                 **analysis,
                 "coordinator_time": coordinator_time
             }
+            return
+
+        # Yield coordinator results first
+        yield {
+            "phase": "coordinator",
+            "success": True,
+            "analysis": analysis["analysis"],
+            "coordinator_time": coordinator_time
+        }
 
         responses = []
         total_tokens = 0
@@ -135,15 +145,32 @@ class AgentGroup:
             process_time = agent.end_processing()
 
             if response["success"]:
-                responses.append({
+                agent_response = {
                     "agent": agent_name,
                     "response": response["response"],
                     "time": process_time
-                })
+                }
+                responses.append(agent_response)
                 total_tokens += response["tokens"]
                 agent_times[agent_name] = process_time
 
-        return {
+                # Yield intermediate result after each agent
+                yield {
+                    "phase": "agent_response",
+                    "success": True,
+                    "current_agent": agent_name,
+                    "agent_response": agent_response,
+                    "responses": responses,
+                    "tokens": total_tokens,
+                    "coordinator_analysis": analysis["analysis"],
+                    "coordinator_time": coordinator_time,
+                    "agent_times": agent_times,
+                    "time": max(agent_times.values()) if agent_times else coordinator_time
+                }
+
+        # Yield final complete result
+        yield {
+            "phase": "complete",
             "success": True,
             "responses": responses,
             "coordinator_analysis": analysis["analysis"],
